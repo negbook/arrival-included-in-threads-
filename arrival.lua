@@ -34,7 +34,7 @@ Arrival.RegisterCallback = function(ntype, onEnter,onExit ,onSpam, callbackdista
             end 
         end)
     end 
-    Threads.CreateLoopSimple(function()
+    Threads.CreateLoopCustom(function()
             if Arrival.PlayerPed then 
                 
                 local itemData,Distance = Arrival.FindClosestItem(ntype)
