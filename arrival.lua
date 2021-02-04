@@ -202,18 +202,7 @@ Arrival.RegisterTargets = function(ntype, datatable)
 		Citizen.Trace("error during Arrival.RegisterTargets " .. ntype .. ": \n" .. err .. "\n")
 	end
 end
---[======[
-Arrival.RegisterTargets ('new_banking_atms',{ 
-    itemlist = atms,
-    callback = 
-                        function(data)
-                            local distance = data.distance
-                            print('NEW '..data.ntype.."is arrived ,pos:"..data.x ..' '.. data.y ..' '.. data.z)
-                        end
-    ,
-    range = 2.5
-})
---]======]
+
 --debug 
 --[======[
 if debuglog then 
