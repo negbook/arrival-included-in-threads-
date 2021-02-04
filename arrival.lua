@@ -28,7 +28,7 @@ end)
 Arrival.RegisterCallback = function(ntype, onEnter,onExit ,onSpam, callbackdistance)
     local entered = false 
     if onSpam then 
-        Threads.CreateLoop('onSpam',0,function()
+        Threads.CreateLoopOnce('onSpam',0,function()
             if SpamCanDraw and Arrival.CallSpam then 
                 Arrival.CallSpam[SpamCanDraw[1]](SpamCanDraw[2])
             end 
