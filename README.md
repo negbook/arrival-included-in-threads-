@@ -1,12 +1,13 @@
 # fxserver-arrival
 Arrival utilities for FXServer
 
+
 [DEPENDENCIES]
-Threads
+[Threads](https://forum.cfx.re/t/lib-threads-good-for-loops/2089076)
 
 
 
-[INSTALLATION]
+[INSTALLATION] 
 
 Set it as a dependency in you fxmanifest.lua
 make sure fx_version up to 'adamant' version
@@ -15,6 +16,7 @@ make sure fx_version up to 'adamant' version
 client_script '@threads/threads.lua'
 client_script '@arrival/arrival.lua'
 ```
+
 
 [EXAMPLE]
 
@@ -128,7 +130,10 @@ atms = {
 
 for i,v in pairs(atms) do 
     atms[i].cb = function(data) print('item('..i..')'..' enter:'..tostring(data.enter)..' exit:'..tostring(data.exit)) end 
+    -- you can define what one of items's callback when you arrived or exit 
 end 
+
+-- next line it will define global items callback with itemlist. you can keep empty when you dont need onExit or onSpam callbacks
 Arrival.RegisterTargets ('new_banking_banks',{ 
     itemlist = banks,
     onEnter = 
@@ -137,16 +142,7 @@ Arrival.RegisterTargets ('new_banking_banks',{
                             print('NEW '..data.ntype.."is arrived ,pos:"..data.x ..' '.. data.y ..' '.. data.z)
                         end
     ,
-    onExit = 
-                        function(data)
-                            local distance = data.distance
-                            print('NEW '..data.ntype.."is exited ,pos:"..data.x ..' '.. data.y ..' '.. data.z)
-                        end
-    ,
-    onSpam =            function()
-                            DisplayHelpText("Press ~INPUT_PICKUP~ to Open Bank")
-                        end
-    ,
+    range = 2.5
 
 })
 Arrival.RegisterTargets ('new_banking_atms',{ 
@@ -166,7 +162,7 @@ Arrival.RegisterTargets ('new_banking_atms',{
     onSpam =            function()
                             DisplayHelpText("Press ~INPUT_PICKUP~ to Open ATM")
                         end
-    ,
+    
 
 })
 
