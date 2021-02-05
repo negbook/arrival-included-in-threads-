@@ -19,6 +19,7 @@ Threads.CreateLoop('zone',1000,function()
      local coords = GetEntityCoords(Arrival.PlayerPed)
      local hash = GetNameOfZone(coords.x,coords.y,coords.z)
      Arrival.CurrentZone = hash 
+
      local fcoords = GetOffsetFromEntityInWorldCoords(Arrival.PlayerPed,0.0,2.5 ,0.0)
      local hash3 = GetNameOfZone(fcoords.x,fcoords.y,fcoords.z)
      Arrival.CurrentFrontZone = hash3 
@@ -28,17 +29,12 @@ Threads.CreateLoop('zone',1000,function()
      
      
 end)
+
 end)
 Arrival.RegisterCallback = function(ntype, onEnter,onExit ,onSpam, callbackdistance)
     Arrival.PlayerPed = PlayerPedId()
     local entered = false 
-    if onSpam then 
-        Threads.CreateLoopOnce('onSpam',0,function()
-            if SpamCanDraw and Arrival.CallSpam and Arrival.CallSpam[SpamCanDraw[1]] then 
-                Arrival.CallSpam[SpamCanDraw[1]](SpamCanDraw[2])
-            end 
-        end)
-    end 
+    
     Threads.CreateLoopCustom(function()
         if Arrival.PlayerPed then 
             
@@ -54,6 +50,13 @@ Arrival.RegisterCallback = function(ntype, onEnter,onExit ,onSpam, callbackdista
                 if Distance < callbackdistance then 
                     if not entered then 
                         entered = true
+                        if onSpam then 
+                            Threads.CreateLoopOnce('onSpam',0,function()
+                                if SpamCanDraw and Arrival.CallSpam and Arrival.CallSpam[SpamCanDraw[1]] then 
+                                    Arrival.CallSpam[SpamCanDraw[1]](SpamCanDraw[2])
+                                end 
+                            end)
+                        end 
                         itemData.enter = true
                         itemData.exit = false 
                         SpamCanDraw = {_ntype,itemData} 
@@ -67,6 +70,7 @@ Arrival.RegisterCallback = function(ntype, onEnter,onExit ,onSpam, callbackdista
                 else 
                     if entered then 
                         entered = false 
+                        Threads.KillLoop('onSpam')
                         itemData.enter = false
                         itemData.exit = true 
                         SpamCanDraw = nil
