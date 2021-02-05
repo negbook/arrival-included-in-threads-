@@ -35,59 +35,61 @@ Arrival.RegisterCallback = function(ntype, onEnter,onExit ,onSpam, callbackdista
         end)
     end 
     Threads.CreateLoopCustom(function()
-            if Arrival.PlayerPed then 
-                
-                local itemData,Distance = Arrival.FindClosestItem(ntype)
-                if itemData and itemData.ntype and Distance then 
-                    local _ntype = itemData.ntype
-                    local change = Arrival.CurrentCallbackItemData[ntype] and Arrival.CurrentCallbackItemData[ntype].x ~= itemData.x 
-                    Arrival.CurrentCallbackItemData[ntype] = itemData
-                    if change then 
-                    end 
-                    itemData.distance = math.ceil(Distance)
-                    if Distance < callbackdistance then 
-                        if not entered then 
-                            entered = true
-                            itemData.enter = true
-                            itemData.exit = false 
-                            SpamCanDraw = {_ntype,itemData} 
-                            if itemData.ncb then 
-                                itemData.ncb(itemData)
-                            end 
-                            if Arrival.CallWhenArrived and Arrival.CallWhenArrived[_ntype] then 
-                                Arrival.CallWhenArrived[_ntype](itemData)
-                            end 
-                        end 
-                    else 
-                        if entered then 
-                            entered = false 
-                            itemData.enter = false
-                            itemData.exit = true 
-                            SpamCanDraw = nil
-                            if itemData.ncb then 
-                                itemData.ncb(itemData)
-                            end 
-                            if Arrival.CallWhenLeave and Arrival.CallWhenLeave[_ntype] then 
-                                Arrival.CallWhenLeave[_ntype](itemData)
-                            end 
-                        end 
-                    end 
-                    
-
-                    local waittime = math.ceil(Distance*10)
-                    if waittime < 33 then 
-                        waittime = 33
-                        
-                    else
-                        if waittime > 2500 then 
-                            waittime = 2500
-                        end
-                    end 
-                    Wait(waittime)
+        if Arrival.PlayerPed then 
+            
+            local itemData,Distance = Arrival.FindClosestItem(ntype)
+            if itemData and itemData.ntype and Distance then 
+                local _ntype = itemData.ntype
+                local change = Arrival.CurrentCallbackItemData[ntype] and Arrival.CurrentCallbackItemData[ntype].x ~= itemData.x 
+                Arrival.CurrentCallbackItemData[ntype] = itemData
+                if change then 
                 end 
+                itemData.distance = math.ceil(Distance)
+                if Distance < callbackdistance then 
+                    if not entered then 
+                        entered = true
+                        itemData.enter = true
+                        itemData.exit = false 
+                        SpamCanDraw = {_ntype,itemData} 
+                        if itemData.ncb then 
+                            itemData.ncb(itemData)
+                        end 
+                        if Arrival.CallWhenArrived and Arrival.CallWhenArrived[_ntype] then 
+                            Arrival.CallWhenArrived[_ntype](itemData)
+                        end 
+                    end 
+                else 
+                    if entered then 
+                        entered = false 
+                        itemData.enter = false
+                        itemData.exit = true 
+                        SpamCanDraw = nil
+                        if itemData.ncb then 
+                            itemData.ncb(itemData)
+                        end 
+                        if Arrival.CallWhenLeave and Arrival.CallWhenLeave[_ntype] then 
+                            Arrival.CallWhenLeave[_ntype](itemData)
+                        end 
+                    end 
+                end 
+                
+
+                local waittime = math.ceil(Distance*10)
+                if waittime < 33 then 
+                    waittime = 33
+                    
+                else
+                    if waittime > 2500 then 
+                        waittime = 2500
+                    end
+                end 
+                Wait(waittime)
             else 
-                Wait(2500)
+            Wait(2500)
             end 
+        else 
+            Wait(2500)
+        end 
     end )
     if onEnter then 
         Arrival.CallWhenArrived[ntype] = function(data)
@@ -124,21 +126,25 @@ Arrival.FindClosestItem = function(ntype)
     if Arrival.PlayerPed then 
         local coords = GetEntityCoords(Arrival.PlayerPed)
         local Bobjects = {}
-        if Arrival.CurrentStreet and #Arrival.StreetItems[Arrival.CurrentStreet] > 0 then  
-            for i=1 , #Arrival.StreetItems[Arrival.CurrentStreet] do 
-                table.insert(Bobjects,Arrival.StreetItems[Arrival.CurrentStreet][i])
+        local a = Arrival.CurrentStreet and Arrival.StreetItems[Arrival.CurrentStreet]  or {}
+        local b = Arrival.CurrentFrontStree and Arrival.StreetItems[Arrival.CurrentFrontStreet]  or {}
+        local c = Arrival.CurrentBackStreet and Arrival.StreetItems[Arrival.CurrentBackStreet]  or {}
+        
+        if Arrival.CurrentStreet and #a > 0 then  
+            for i=1 , #a do 
+                table.insert(Bobjects,a[i])
             end 
         end 
        
-        if Arrival.CurrentFrontStreet and Arrival.CurrentStreet ~= Arrival.CurrentFrontStreet and #Arrival.StreetItems[Arrival.CurrentFrontStreet]>0 then 
-            for i=1 , #Arrival.StreetItems[Arrival.CurrentFrontStreet] do 
-                table.insert(Bobjects,Arrival.StreetItems[Arrival.CurrentFrontStreet][i])
+        if Arrival.CurrentFrontStreet and Arrival.CurrentStreet ~= Arrival.CurrentFrontStreet and #b>0 then 
+            for i=1 , #b do 
+                table.insert(Bobjects,b[i])
             end 
         end 
        
-        if Arrival.CurrentBackStreet and Arrival.CurrentStreet ~= Arrival.CurrentBackStreet and #Arrival.StreetItems[Arrival.CurrentBackStreet]>0 then 
-            for i=1 , #Arrival.StreetItems[Arrival.CurrentBackStreet] do 
-                table.insert(Bobjects,Arrival.StreetItems[Arrival.CurrentBackStreet][i])
+        if Arrival.CurrentBackStreet and Arrival.CurrentStreet ~= Arrival.CurrentBackStreet and #c>0 then 
+            for i=1 , #c do 
+                table.insert(Bobjects,c[i])
             end 
         end 
       
@@ -184,10 +190,13 @@ Arrival.Add = function( ntype, data )
 	Arrival.formatData(ntype,data)
 end
 Arrival.RegisterTargets = function(ntype, datatable)
-    if datatable.itemlist and type(datatable.itemlist) == 'table' then 
+
+    if datatable.itemlist and type(datatable.itemlist) == 'table' and #datatable.itemlist > 0 then 
         for i,v in pairs(datatable.itemlist) do 
             Arrival.Add(ntype,v)
         end 
+    else 
+        print('itemlist not defined or empty')
     end 
 	local status, err = pcall(function()
         if datatable.onEnter or datatable.onExit or datatable.onSpam then 
