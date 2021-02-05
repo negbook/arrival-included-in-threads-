@@ -14,7 +14,7 @@ SpamCanDraw = nil
 --debuglog = true 
 CreateThread(function()
 Arrival.PlayerPed = PlayerPedId()
-Threads.CreateLoop('street',1000,function()
+Threads.CreateLoop('zone',1000,function()
      Arrival.PlayerPed = PlayerPedId()
      local coords = GetEntityCoords(Arrival.PlayerPed)
      local hash = GetNameOfZone(coords.x,coords.y,coords.z)
@@ -186,13 +186,13 @@ Arrival.formatData = function(ntype, data)
     
     local cb = data.cb
     data.ncb = cb
-    local _hash1,_hash2 = GetNameOfZone(x,y,z)
-    local street = _hash1 or _hash2
-    --case : street (Distance: 0~10)
-    if Arrival.ZoneItems[street] == nil then 
-        Arrival.ZoneItems[street] = {}
+    local _hash1 = GetNameOfZone(x,y,z)
+    local zone = _hash1
+    --case : zone (Distance: 0~10)
+    if Arrival.ZoneItems[zone] == nil then 
+        Arrival.ZoneItems[zone] = {}
     end
-    table.insert(Arrival.ZoneItems[street],data)
+    table.insert(Arrival.ZoneItems[zone],data)
    
 end 
 
