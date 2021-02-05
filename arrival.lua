@@ -3,29 +3,34 @@ Arrival.CallWhenArrived = {}
 Arrival.CallWhenLeave = {}
 Arrival.CallSpam = {}
 Arrival.PlayerPed = nil
-Arrival.StreetItems = {} 
-Arrival.CurrentStreet = '' 
-Arrival.CurrentFrontStreet = '' 
-Arrival.CurrentBackStreet = '' 
+Arrival.ZoneItems = {} 
+Arrival.CurrentZone = '' 
+Arrival.CurrentFrontZone = '' 
+Arrival.CurrentBackZone = '' 
 Arrival.CurrentCallbackItemData = {}
+SpawnFunctions = {}
 SpamCanDraw = nil 
 
 --debuglog = true 
 CreateThread(function()
+Arrival.PlayerPed = PlayerPedId()
 Threads.CreateLoop('street',1000,function()
      Arrival.PlayerPed = PlayerPedId()
      local coords = GetEntityCoords(Arrival.PlayerPed)
-     local hash,hash2 = GetStreetNameAtCoord(coords.x,coords.y,coords.z)
-     Arrival.CurrentStreet = hash or hash2
+     local hash = GetNameOfZone(coords.x,coords.y,coords.z)
+     Arrival.CurrentZone = hash 
      local fcoords = GetOffsetFromEntityInWorldCoords(Arrival.PlayerPed,0.0,2.5 ,0.0)
-     local hash3,hash4 = GetStreetNameAtCoord(fcoords.x,fcoords.y,fcoords.z)
-     Arrival.CurrentFrontStreet = hash3 or hash4
+     local hash3 = GetNameOfZone(fcoords.x,fcoords.y,fcoords.z)
+     Arrival.CurrentFrontZone = hash3 
      local bcoords = GetOffsetFromEntityInWorldCoords(Arrival.PlayerPed,0.0,-2.5 ,0.0)
-     local hash5,hash6 = GetStreetNameAtCoord(bcoords.x,bcoords.y,bcoords.z)
-     Arrival.CurrentBackStreet = hash5 or hash6
+     local hash5 = GetNameOfZone(bcoords.x,bcoords.y,bcoords.z)
+     Arrival.CurrentBackZone = hash5 
+     
+     
 end)
 end)
 Arrival.RegisterCallback = function(ntype, onEnter,onExit ,onSpam, callbackdistance)
+    Arrival.PlayerPed = PlayerPedId()
     local entered = false 
     if onSpam then 
         Threads.CreateLoopOnce('onSpam',0,function()
@@ -42,6 +47,7 @@ Arrival.RegisterCallback = function(ntype, onEnter,onExit ,onSpam, callbackdista
                 local _ntype = itemData.ntype
                 local change = Arrival.CurrentCallbackItemData[ntype] and Arrival.CurrentCallbackItemData[ntype].x ~= itemData.x 
                 Arrival.CurrentCallbackItemData[ntype] = itemData
+             
                 if change then 
                 end 
                 itemData.distance = math.ceil(Distance)
@@ -86,9 +92,11 @@ Arrival.RegisterCallback = function(ntype, onEnter,onExit ,onSpam, callbackdista
                 Wait(waittime)
             else 
             Wait(2500)
+          
             end 
         else 
             Wait(2500)
+           
         end 
     end )
     if onEnter then 
@@ -123,26 +131,27 @@ Arrival.RegisterCallback = function(ntype, onEnter,onExit ,onSpam, callbackdista
     end 
 end 
 Arrival.FindClosestItem = function(ntype)
+    Arrival.PlayerPed = PlayerPedId()
     if Arrival.PlayerPed then 
         local coords = GetEntityCoords(Arrival.PlayerPed)
         local Bobjects = {}
-        local a = Arrival.CurrentStreet and Arrival.StreetItems[Arrival.CurrentStreet]  or {}
-        local b = Arrival.CurrentFrontStree and Arrival.StreetItems[Arrival.CurrentFrontStreet]  or {}
-        local c = Arrival.CurrentBackStreet and Arrival.StreetItems[Arrival.CurrentBackStreet]  or {}
+        local a = Arrival.CurrentZone and Arrival.ZoneItems[Arrival.CurrentZone]  or {}
+        local b = Arrival.CurrentFrontStree and Arrival.ZoneItems[Arrival.CurrentFrontZone]  or {}
+        local c = Arrival.CurrentBackZone and Arrival.ZoneItems[Arrival.CurrentBackZone]  or {}
         
-        if Arrival.CurrentStreet and #a > 0 then  
+        if Arrival.CurrentZone and #a > 0 then  
             for i=1 , #a do 
                 table.insert(Bobjects,a[i])
             end 
         end 
        
-        if Arrival.CurrentFrontStreet and Arrival.CurrentStreet ~= Arrival.CurrentFrontStreet and #b>0 then 
+        if Arrival.CurrentFrontZone and Arrival.CurrentZone ~= Arrival.CurrentFrontZone and #b>0 then 
             for i=1 , #b do 
                 table.insert(Bobjects,b[i])
             end 
         end 
        
-        if Arrival.CurrentBackStreet and Arrival.CurrentStreet ~= Arrival.CurrentBackStreet and #c>0 then 
+        if Arrival.CurrentBackZone and Arrival.CurrentZone ~= Arrival.CurrentBackZone and #c>0 then 
             for i=1 , #c do 
                 table.insert(Bobjects,c[i])
             end 
@@ -174,43 +183,55 @@ Arrival.formatData = function(ntype, data)
     end 
     local x,y,z = data.x,data.y,data.z
     data.ntype = ntype
+    
     local cb = data.cb
     data.ncb = cb
-    local _hash1,_hash2 = GetStreetNameAtCoord(x,y,z)
+    local _hash1,_hash2 = GetNameOfZone(x,y,z)
     local street = _hash1 or _hash2
     --case : street (Distance: 0~10)
-    if not Arrival.StreetItems[street] then 
-        Arrival.StreetItems[street] = {}
+    if Arrival.ZoneItems[street] == nil then 
+        Arrival.ZoneItems[street] = {}
     end
-    table.insert(Arrival.StreetItems[street],data)
+    table.insert(Arrival.ZoneItems[street],data)
+   
 end 
 
 Arrival.Add = function( ntype, data )
     if not data then return print("Error on Arrival resource: no any data")  end 
-	Arrival.formatData(ntype,data)
+	return Arrival.formatData(ntype,data)
 end
+
 Arrival.RegisterTargets = function(ntype, datatable)
 
-    if datatable.itemlist and type(datatable.itemlist) == 'table' and #datatable.itemlist > 0 then 
-        for i,v in pairs(datatable.itemlist) do 
-            Arrival.Add(ntype,v)
+        Arrival.PlayerPed = PlayerPedId()
+
+        if datatable.itemlist and type(datatable.itemlist) == 'table' then 
+            for i,v in pairs(datatable.itemlist) do 
+                Arrival.Add(ntype,v)
+              
+            end 
+        else 
+            print('itemlist not defined or empty')
         end 
-    else 
-        print('itemlist not defined or empty')
-    end 
-	local status, err = pcall(function()
-        if datatable.onEnter or datatable.onExit or datatable.onSpam then 
-            local distance = datatable.range or 1.0
-            local EnterCallback = datatable.onEnter  
-            local ExitCallback = datatable.onExit 
-            local SpamCallback = datatable.onSpam   
-            Arrival.RegisterCallback(ntype,EnterCallback,ExitCallback,SpamCallback,distance)
-        end 
-	end)
-	if err then
-		Citizen.Trace("error during Arrival.RegisterTargets " .. ntype .. ": \n" .. err .. "\n")
-	end
+
+        local status, err = pcall(function()
+            if datatable.onEnter or datatable.onExit or datatable.onSpam then 
+                local distance = datatable.range or 1.0
+                local EnterCallback = datatable.onEnter  
+                local ExitCallback = datatable.onExit 
+                local SpamCallback = datatable.onSpam   
+                Arrival.RegisterCallback(ntype,EnterCallback,ExitCallback,SpamCallback,distance)
+            end 
+        end)
+        if err then
+            Citizen.Trace("error during Arrival.RegisterTargets " .. ntype .. ": \n" .. err .. "\n")
+        end
+   
+    
+  
 end
+
+
 
 --debug 
 --[======[
