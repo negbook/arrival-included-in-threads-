@@ -89,17 +89,17 @@ Arrival.RegisterCallback = function(ntype, onEnter,onExit ,onSpam, callbackdista
                     waittime = 33
                     
                 else
-                    if waittime > 2500 then 
-                        waittime = 2500
+                    if waittime > 350 then 
+                        waittime = 350
                     end
                 end 
                 Wait(waittime)
             else 
-            Wait(2500)
+            Wait(350)
           
             end 
         else 
-            Wait(2500)
+            Wait(350)
            
         end 
     end )
