@@ -84,15 +84,10 @@ Arrival.RegisterCallback = function(ntype, onEnter,onExit ,onSpam, callbackdista
                 end 
                 
 
-                local waittime = math.ceil(Distance*10)
-                if waittime < 33 then 
-                    waittime = 33
-                    
-                else
-                    if waittime > 350 then 
-                        waittime = 350
-                    end
-                end 
+                local waittime = 33 + math.ceil(Distance*10)
+                if waittime > 350 then 
+                    waittime = 350
+                end
                 Wait(waittime)
             else 
             Wait(350)
