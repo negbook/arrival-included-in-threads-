@@ -7,41 +7,29 @@ Arrival.PlayerCoords = nil
 Arrival.ZoneItems = {} 
 Arrival.CurrentZone = '' 
 Arrival.CurrentNearZones = {}
-
-
-
+Arrival.Ready = nil 
 Arrival.CurrentCallbackItemData = {}
-
 Arrival.SpamCanDraw = nil 
-
 --debuglog = true 
 CreateThread(function()
-Arrival.PlayerPed = PlayerPedId()
-Threads.CreateLoop('zone',1000,function()
-     Arrival.PlayerPed = PlayerPedId()
-     Arrival.PlayerCoords = GetEntityCoords(Arrival.PlayerPed)
-     local nearZones = GetNearZonesFromCoords(Arrival.PlayerCoords)
-     Arrival.CurrentNearZones = nearZones                                
-     Arrival.CurrentZone = Arrival.CurrentNearZones[5]
-
-     
+    Threads.CreateLoop('zone',1000,function()
+         Arrival.PlayerPed = PlayerPedId()
+         Arrival.PlayerCoords = GetEntityCoords(Arrival.PlayerPed)
+         local nearZones = GetNearZonesFromCoords(Arrival.PlayerCoords)
+         Arrival.CurrentNearZones = nearZones                                
+         Arrival.CurrentZone = Arrival.CurrentNearZones[5]
+         Arrival.Ready = true
+    end)
 end)
-
-end)
-
 Arrival.RegisterCallback = function(ntype, onEnter,onExit ,onSpam, callbackdistance)
-    Arrival.PlayerPed = PlayerPedId()
     local entered = false 
-    
     Threads.CreateLoopCustom(function()
-        if Arrival.PlayerPed then 
-            
+        if Arrival.Ready then 
             local itemData,Distance = Arrival.FindPlayerClosestItem(ntype)
             if itemData and itemData.ntype and Distance then 
                 local _ntype = itemData.ntype
                 local change = Arrival.CurrentCallbackItemData[ntype] and Arrival.CurrentCallbackItemData[ntype].x ~= itemData.x 
                 Arrival.CurrentCallbackItemData[ntype] = itemData
-             
                 if change then 
                 end 
                 if Distance < callbackdistance then 
@@ -79,8 +67,6 @@ Arrival.RegisterCallback = function(ntype, onEnter,onExit ,onSpam, callbackdista
                         end 
                     end 
                 end 
-                
-
                 local waittime = 33 + math.ceil(Distance*10)
                 if waittime > 350 then 
                     waittime = 350
@@ -88,11 +74,9 @@ Arrival.RegisterCallback = function(ntype, onEnter,onExit ,onSpam, callbackdista
                 Wait(waittime)
             else 
             Wait(350)
-          
             end 
         else 
             Wait(350)
-           
         end 
     end )
     if onEnter then 
@@ -126,15 +110,13 @@ Arrival.RegisterCallback = function(ntype, onEnter,onExit ,onSpam, callbackdista
 	end
     end 
 end 
-function GetPlayerCoords()
+GetPlayerCoords = function ()
     if Arrival.PlayerCoords then return Arrival.PlayerCoords 
     else 
         Arrival.PlayerCoords  = GetEntityCoords(PlayerPedId())
         return Arrival.PlayerCoords  
     end 
-    
 end 
-
 Arrival.FindPlayerNearItems  = function()
     local objs = {}
     for i=1,#Arrival.CurrentNearZones do 
@@ -149,26 +131,20 @@ Arrival.FindPlayerNearItems  = function()
             end 
         end 
     end 
-    
     return objs
 end
-
 Arrival.FindPlayerNearItemsByNType  = function(ntype)
         local _objs = Arrival.FindPlayerNearItems()
-
         local objs = {}
         for i,v in pairs(_objs) do
             if v.ntype == ntype then 
                 table.insert(objs,v)
             end 
         end 
-
     return objs
 end 
-
 Arrival.FindPlayerClosestItem = function(ntype)
-    Arrival.PlayerPed = PlayerPedId()
-    if Arrival.PlayerPed then 
+    if Arrival.Ready then 
         local coords = GetEntityCoords(Arrival.PlayerPed)
         local closestDistance = -1
         local closestObject   = {}
@@ -182,7 +158,6 @@ Arrival.FindPlayerClosestItem = function(ntype)
                 closestDistance = distance
             end
         end
-        
 	return closestObject,closestDistance
     end 
 end
@@ -192,32 +167,24 @@ Arrival.formatData = function(ntype, data)
     end 
     local x,y,z = data.x,data.y,data.z
     data.ntype = ntype
-    
     local cb = data.cb
     data.ncb = cb
     local _hash1 = GetNameOfZone(x,y,z)
     local zone = _hash1
     data.zone = zone
-    
     --case : zone (Distance: 0~10)
     if Arrival.ZoneItems[zone] == nil then 
         Arrival.ZoneItems[zone] = {}
     end
     table.insert(Arrival.ZoneItems[zone],data)
-   
 end 
-
 Arrival.Add = function( ntype, data )
     if not data then return print("Error on Arrival resource: no any data")  end 
 	return Arrival.formatData(ntype,data)
 end
-
 Arrival.GetZoneItems = function(zone)
     return Arrival.ZoneItems[zone] 
 end 
-
-
-
 Arrival.GetItemsByDistanceByNType = function(ntype,distance)
     local tbl = {}
     local tbl2 = Arrival.FindPlayerNearItemsByNType(ntype)
@@ -226,23 +193,16 @@ Arrival.GetItemsByDistanceByNType = function(ntype,distance)
             table.insert(tbl,tbl2[i])
         end 
     end 
-    
     return tbl
 end 
-
 Arrival.RegisterTargets = function(ntype, datatable)
-
-        Arrival.PlayerPed = PlayerPedId()
-
         if datatable.itemlist and type(datatable.itemlist) == 'table' then 
             for i,v in pairs(datatable.itemlist) do 
                 Arrival.Add(ntype,v)
-              
             end 
         else 
             print('itemlist not defined or empty')
         end 
-
         local status, err = pcall(function()
             if datatable.onEnter or datatable.onExit or datatable.onSpam then 
                 local distance = datatable.range or 1.0
@@ -255,12 +215,7 @@ Arrival.RegisterTargets = function(ntype, datatable)
         if err then
             Citizen.Trace("error during Arrival.RegisterTargets " .. ntype .. ": \n" .. err .. "\n")
         end
-   
-    
-  
 end
-
-
 function GetNearZonesFromCoords(...) -- ugly scripting by negbook
     local x,y,z 
     if #{...} == 3 then 
@@ -311,10 +266,8 @@ function GetNearZonesFromCoords(...) -- ugly scripting by negbook
         --NearZones[4].pos = pos
     end 
     NearZones[5] = zone
-    
     return NearZones
 end 
-
 --debug 
 --[======[
 if debuglog then 
