@@ -19,11 +19,12 @@ client_script '@arrival/arrival.lua'
 
 [FUNCTIONS]
 ```
-Arrival.RegisterTargets
+Arrival.RegisterTargets (ntype, datatable)    --define target-items group  , datatable:{ItemList,enter exit cb etc....}
 
 --Advanced functiona
-Arrival.Add
-Arrival.GetZoneItems
+Arrival.Add ( ntype, data ) -- add item , defined cbs with RegisterCallback
+Arrival.RegisterCallback (ntype, onEnter,onExit ,onSpam, callbackdistance)
+Arrival.GetZoneItems (zone) -- idk
 ```
 
 [EXAMPLE]
