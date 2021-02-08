@@ -12,6 +12,7 @@ Arrival.CurrentCallbackItemData = {}
 Arrival.SpamCanDraw = nil 
 --debuglog = true 
 CreateThread(function()
+    
     Arrival.PlayerPed = PlayerPedId()
     Arrival.PlayerCoords = GetEntityCoords(Arrival.PlayerPed)
     local nearZones = GetNearZonesFromCoords(Arrival.PlayerCoords)
@@ -19,6 +20,7 @@ CreateThread(function()
     Arrival.CurrentZone = Arrival.CurrentNearZones[5]
     Arrival.Ready = true
     Threads.CreateLoop('zone',1000,function()
+        
          Arrival.PlayerPed = PlayerPedId()
          Arrival.PlayerCoords = GetEntityCoords(Arrival.PlayerPed)
          local nearZones = GetNearZonesFromCoords(Arrival.PlayerCoords)
@@ -26,6 +28,7 @@ CreateThread(function()
          Arrival.CurrentZone = Arrival.CurrentNearZones[5]
          Arrival.Ready = true
     end)
+    
 end)
 Arrival.RegisterCallback = function(ntype, onEnter,onExit ,onSpam, callbackdistance)
     local entered = false 
@@ -34,10 +37,12 @@ Arrival.RegisterCallback = function(ntype, onEnter,onExit ,onSpam, callbackdista
             local itemData,Distance = Arrival.FindPlayerClosestItem(ntype)
             if itemData and itemData.ntype and Distance then 
                 local _ntype = itemData.ntype
-                local change = Arrival.CurrentCallbackItemData[ntype] and Arrival.CurrentCallbackItemData[ntype].x ~= itemData.x 
+                local change = Arrival.CurrentCallbackItemData[ntype] and  (Arrival.CurrentCallbackItemData[ntype]~=itemData)
                 Arrival.CurrentCallbackItemData[ntype] = itemData
                 if change then 
+                    entered = false
                 end 
+               
                 if Distance < callbackdistance then 
                     if not entered then 
                         entered = true
@@ -51,7 +56,9 @@ Arrival.RegisterCallback = function(ntype, onEnter,onExit ,onSpam, callbackdista
                         itemData.enter = true
                         itemData.exit = false 
                         Arrival.SpamCanDraw = {_ntype,itemData} 
+                        
                         if itemData.ncb then 
+                            
                             itemData.ncb(itemData)
                         end 
                         if Arrival.CallWhenArrived and Arrival.CallWhenArrived[_ntype] then 
