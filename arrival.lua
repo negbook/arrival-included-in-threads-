@@ -187,6 +187,8 @@ Arrival.formatData = function(ntype, data)
     data.ncb = cb
     local _hash1 = GetNameOfZone(x,y,z)
     local zone = _hash1
+    data.zone = zone
+
     --case : zone (Distance: 0~10)
     if Arrival.ZoneItems[zone] == nil then 
         Arrival.ZoneItems[zone] = {}
@@ -199,6 +201,10 @@ Arrival.Add = function( ntype, data )
     if not data then return print("Error on Arrival resource: no any data")  end 
 	return Arrival.formatData(ntype,data)
 end
+
+Arrival.GetZoneItems = function(zone)
+    return Arrival.ZoneItems[zone] 
+end 
 
 Arrival.RegisterTargets = function(ntype, datatable)
 
