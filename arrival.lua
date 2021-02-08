@@ -138,7 +138,6 @@ Arrival.FindPlayerNearItems  = function()
             for i=1 , #nearZone do 
                 if GetPlayerCoords() then 
                     local objCoords = vector3(nearZone[i].x,nearZone[i].y,nearZone[i].z)
-                    nearZone[i].distance = math.ceil(#(Arrival.PlayerCoords - objCoords))
                 end 
                 table.insert(objs,nearZone[i])
             end 
@@ -158,7 +157,7 @@ Arrival.FindPlayerNearItemsByNType  = function(ntype)
 end 
 Arrival.FindPlayerClosestItem = function(ntype)
     if Arrival.Ready then 
-        local coords = GetEntityCoords(Arrival.PlayerPed)
+        local coords = Arrival.PlayerCoords
         local closestDistance = -1
         local closestObject   = {}
         local objs = Arrival.FindPlayerNearItemsByNType(ntype)
@@ -166,10 +165,14 @@ Arrival.FindPlayerClosestItem = function(ntype)
             local data = objs[i]
             local objectCoords = vector3(data.x,data.y,data.z)
             local distance     = #(objectCoords - coords)
+            
+            
             if closestDistance == -1 or closestDistance > distance then
                 closestObject   = objs[i]
                 closestDistance = distance
+                
             end
+    
         end
 	return closestObject,closestDistance
     end 
@@ -201,8 +204,11 @@ end
 Arrival.GetItemsByDistanceByNType = function(ntype,distance)
     local tbl = {}
     local tbl2 = Arrival.FindPlayerNearItemsByNType(ntype)
+    
     for i=1,#tbl2 do 
-        if tbl2[i].distance <= distance then 
+        local objectCoords = vector3(tbl2[i].x,tbl2[i].y,tbl2[i].z)
+        local _distance     = #(objectCoords - Arrival.PlayerCoords)
+        if _distance <= distance then 
             table.insert(tbl,tbl2[i])
         end 
     end 
