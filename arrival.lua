@@ -29,61 +29,6 @@ end)
 
 end)
 
-
-function GetNearZonesFromCoords(...) -- ugly scripting by negbook
-    local x,y,z 
-    if #{...} == 3 then 
-        x,y,z = ...
-    else 
-        x,y,z = (...).x,(...).y,(...).z 
-    end 
-    local zone = GetNameOfZone(x,y,z) 
-    local NearZones = {}
-    local pos = GetObjectOffsetFromCoords(x,y,z,0.0, 0.0, 0.0 ,0.0)
-    local temp_y = 0.0
-    while GetNameOfZone(pos.x,pos.y,pos.z) == zone do 
-        pos = GetObjectOffsetFromCoords(pos.x,pos.y,pos.z,0.0, 0.0, temp_y ,0.0)
-        temp_y = temp_y + 8.0
-        NearZones[1] = GetNameOfZone(pos.x,pos.y,pos.z)
-        --NearZones[1] = {}
-        --NearZones[1].zone = GetNameOfZone(pos.x,pos.y,pos.z)
-        --NearZones[1].pos = pos
-    end 
-    local pos = GetObjectOffsetFromCoords(x,y,z,0.0, 0.0, 0.0 ,0.0)
-    local temp_x = 0.0
-    while GetNameOfZone(pos.x,pos.y,pos.z) == zone do 
-        pos = GetObjectOffsetFromCoords(pos.x,pos.y,pos.z,0.0, temp_x, 0.0 ,0.0)
-        temp_x = temp_x + 8.0
-        NearZones[2] = GetNameOfZone(pos.x,pos.y,pos.z)
-        --NearZones[2] = {}
-        --NearZones[2].zone = GetNameOfZone(pos.x,pos.y,pos.z)
-        --NearZones[2].pos = pos
-    end 
-    local pos = GetObjectOffsetFromCoords(x,y,z,0.0, 0.0, 0.0 ,0.0)
-    local temp_y = 0.0
-    while GetNameOfZone(pos.x,pos.y,pos.z) == zone do 
-        pos = GetObjectOffsetFromCoords(pos.x,pos.y,pos.z,0.0, 0.0, temp_y ,0.0)
-        temp_y = temp_y - 8.0
-        NearZones[3] = GetNameOfZone(pos.x,pos.y,pos.z)
-        --NearZones[3] = {}
-        --NearZones[3].zone = GetNameOfZone(pos.x,pos.y,pos.z)
-        --NearZones[3].pos = pos
-    end 
-    local pos = GetObjectOffsetFromCoords(x,y,z,0.0, 0.0, 0.0 ,0.0)
-    local temp_x = 0.0
-    while GetNameOfZone(pos.x,pos.y,pos.z) == zone do 
-        pos = GetObjectOffsetFromCoords(pos.x,pos.y,pos.z,0.0, temp_x, 0.0 ,0.0)
-        temp_x = temp_x - 8.0
-        NearZones[4] = GetNameOfZone(pos.x,pos.y,pos.z)
-        --NearZones[4] = {}
-        --NearZones[4].zone = GetNameOfZone(pos.x,pos.y,pos.z)
-        --NearZones[4].pos = pos
-    end 
-    NearZones[5] = GetNameOfZone((...).x,(...).y,(...).z )
-    
-    return NearZones
-end 
-
 Arrival.RegisterCallback = function(ntype, onEnter,onExit ,onSpam, callbackdistance)
     Arrival.PlayerPed = PlayerPedId()
     local entered = false 
@@ -316,6 +261,59 @@ Arrival.RegisterTargets = function(ntype, datatable)
 end
 
 
+function GetNearZonesFromCoords(...) -- ugly scripting by negbook
+    local x,y,z 
+    if #{...} == 3 then 
+        x,y,z = ...
+    else 
+        x,y,z = (...).x,(...).y,(...).z 
+    end 
+    local zone = GetNameOfZone(x,y,z) 
+    local NearZones = {}
+    local pos = GetObjectOffsetFromCoords(x,y,z,0.0, 0.0, 0.0 ,0.0)
+    local temp_y = 0.0
+    while GetNameOfZone(pos.x,pos.y,pos.z) == zone do 
+        pos = GetObjectOffsetFromCoords(pos.x,pos.y,pos.z,0.0, 0.0, temp_y ,0.0)
+        temp_y = temp_y + 8.0
+        NearZones[1] = GetNameOfZone(pos.x,pos.y,pos.z)
+        --NearZones[1] = {}
+        --NearZones[1].zone = GetNameOfZone(pos.x,pos.y,pos.z)
+        --NearZones[1].pos = pos
+    end 
+    local pos = GetObjectOffsetFromCoords(x,y,z,0.0, 0.0, 0.0 ,0.0)
+    local temp_x = 0.0
+    while GetNameOfZone(pos.x,pos.y,pos.z) == zone do 
+        pos = GetObjectOffsetFromCoords(pos.x,pos.y,pos.z,0.0, temp_x, 0.0 ,0.0)
+        temp_x = temp_x + 8.0
+        NearZones[2] = GetNameOfZone(pos.x,pos.y,pos.z)
+        --NearZones[2] = {}
+        --NearZones[2].zone = GetNameOfZone(pos.x,pos.y,pos.z)
+        --NearZones[2].pos = pos
+    end 
+    local pos = GetObjectOffsetFromCoords(x,y,z,0.0, 0.0, 0.0 ,0.0)
+    local temp_y = 0.0
+    while GetNameOfZone(pos.x,pos.y,pos.z) == zone do 
+        pos = GetObjectOffsetFromCoords(pos.x,pos.y,pos.z,0.0, 0.0, temp_y ,0.0)
+        temp_y = temp_y - 8.0
+        NearZones[3] = GetNameOfZone(pos.x,pos.y,pos.z)
+        --NearZones[3] = {}
+        --NearZones[3].zone = GetNameOfZone(pos.x,pos.y,pos.z)
+        --NearZones[3].pos = pos
+    end 
+    local pos = GetObjectOffsetFromCoords(x,y,z,0.0, 0.0, 0.0 ,0.0)
+    local temp_x = 0.0
+    while GetNameOfZone(pos.x,pos.y,pos.z) == zone do 
+        pos = GetObjectOffsetFromCoords(pos.x,pos.y,pos.z,0.0, temp_x, 0.0 ,0.0)
+        temp_x = temp_x - 8.0
+        NearZones[4] = GetNameOfZone(pos.x,pos.y,pos.z)
+        --NearZones[4] = {}
+        --NearZones[4].zone = GetNameOfZone(pos.x,pos.y,pos.z)
+        --NearZones[4].pos = pos
+    end 
+    NearZones[5] = GetNameOfZone((...).x,(...).y,(...).z )
+    
+    return NearZones
+end 
 
 --debug 
 --[======[
