@@ -12,6 +12,12 @@ Arrival.CurrentCallbackItemData = {}
 Arrival.SpamCanDraw = nil 
 --debuglog = true 
 CreateThread(function()
+    Arrival.PlayerPed = PlayerPedId()
+    Arrival.PlayerCoords = GetEntityCoords(Arrival.PlayerPed)
+    local nearZones = GetNearZonesFromCoords(Arrival.PlayerCoords)
+    Arrival.CurrentNearZones = nearZones                                
+    Arrival.CurrentZone = Arrival.CurrentNearZones[5]
+    Arrival.Ready = true
     Threads.CreateLoop('zone',1000,function()
          Arrival.PlayerPed = PlayerPedId()
          Arrival.PlayerCoords = GetEntityCoords(Arrival.PlayerPed)
