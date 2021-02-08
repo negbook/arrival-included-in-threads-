@@ -310,7 +310,7 @@ function GetNearZonesFromCoords(...) -- ugly scripting by negbook
         --NearZones[4].zone = GetNameOfZone(pos.x,pos.y,pos.z)
         --NearZones[4].pos = pos
     end 
-    NearZones[5] = GetNameOfZone((...).x,(...).y,(...).z )
+    NearZones[5] = zone
     
     return NearZones
 end 
