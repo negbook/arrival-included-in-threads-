@@ -17,6 +17,14 @@ client_script '@threads/threads.lua'
 client_script '@arrival/arrival.lua'
 ```
 
+[FUNCTIONS]
+```
+Arrival.RegisterTargets
+
+--Advanced functiona
+Arrival.Add
+Arrival.GetZoneItems
+```
 
 [EXAMPLE]
 
