@@ -1,241 +1,124 @@
 Arrival = {}
-Arrival.CallWhenArrived = {}
-Arrival.CallWhenLeave = {}
-Arrival.CallSpam = {}
 Arrival.PlayerPed = nil
 Arrival.PlayerCoords = nil
-Arrival.ZoneItems = {} 
-Arrival.CurrentZone = '' 
-Arrival.CurrentNearZones = {}
+Arrival.PlayerNearZones = {}
 Arrival.Ready = nil 
-Arrival.CurrentCallbackItemData = {}
-Arrival.SpamCanDraw = nil 
+Arrival.ZoneItems = {}
+Arrival.Items = {}
+Arrival.Data = {}
+Arrival.Usages = {}
+Arrival.ItemID = 1
+
 --debuglog = true 
-CreateThread(function()
-    
-    Arrival.PlayerPed = PlayerPedId()
-    Arrival.PlayerCoords = GetEntityCoords(Arrival.PlayerPed)
-    local nearZones = GetNearZonesFromCoords(Arrival.PlayerCoords)
-    Arrival.CurrentNearZones = nearZones                                
-    Arrival.CurrentZone = Arrival.CurrentNearZones[5]
-    Arrival.Ready = true
-    Threads.CreateLoop('zone',1000,function()
-        
-         Arrival.PlayerPed = PlayerPedId()
-         Arrival.PlayerCoords = GetEntityCoords(Arrival.PlayerPed)
-         local nearZones = GetNearZonesFromCoords(Arrival.PlayerCoords)
-         Arrival.CurrentNearZones = nearZones                                
-         Arrival.CurrentZone = Arrival.CurrentNearZones[5]
-         Arrival.Ready = true
-    end)
-    
-end)
-Arrival.RegisterCallback = function(ntype, onEnter,onExit ,onSpam, callbackdistance)
-    local entered = false 
-    Threads.CreateLoopCustom(function()
-        if Arrival.Ready then 
-            local itemData,Distance = Arrival.FindPlayerClosestItem(ntype)
-            if itemData and itemData.ntype and Distance then 
-                local _ntype = itemData.ntype
-                local change = Arrival.CurrentCallbackItemData[ntype] and  (Arrival.CurrentCallbackItemData[ntype]~=itemData)
-                Arrival.CurrentCallbackItemData[ntype] = itemData
-                if change then 
-                    entered = false
-                end 
-               
-                if Distance < callbackdistance then 
-                    if not entered then 
-                        entered = true
-                        if onSpam then 
-                            Threads.CreateLoopOnce('onSpam',0,function()
-                                if Arrival.SpamCanDraw and Arrival.CallSpam and Arrival.CallSpam[Arrival.SpamCanDraw[1]] then 
-                                    Arrival.CallSpam[Arrival.SpamCanDraw[1]](Arrival.SpamCanDraw[2])
-                                end 
-                            end)
-                        end 
-                        itemData.enter = true
-                        itemData.exit = false 
-                        Arrival.SpamCanDraw = {_ntype,itemData} 
-                        
-                        if itemData.ncb then 
-                            
-                            itemData.ncb(itemData)
-                        end 
-                        if Arrival.CallWhenArrived and Arrival.CallWhenArrived[_ntype] then 
-                            Arrival.CallWhenArrived[_ntype](itemData)
-                        end 
-                    end 
-                else 
-                    if entered then 
-                        entered = false 
-                        Threads.KillLoop('onSpam')
-                        itemData.enter = false
-                        itemData.exit = true 
-                        Arrival.SpamCanDraw = nil
-                        if itemData.ncb then 
-                            itemData.ncb(itemData)
-                        end 
-                        if Arrival.CallWhenLeave and Arrival.CallWhenLeave[_ntype] then 
-                            Arrival.CallWhenLeave[_ntype](itemData)
-                        end 
-                    end 
-                end 
-                local waittime = 33 + math.ceil(Distance*10)
-                if waittime > 350 then 
-                    waittime = 350
-                end
-                Wait(waittime)
-            else 
-            Wait(350)
-            end 
-        else 
-            Wait(350)
-        end 
-    end )
-    if onEnter then 
-        Arrival.CallWhenArrived[ntype] = function(data)
-            local status, err = pcall(function()
-                onEnter(data)
-            end)
-            if err then
-                print("error during Arrival callback " .. ntype .. ": " .. err .. "\n")
-            end
-        end
-    end 
-    if onExit then 
-    Arrival.CallWhenLeave[ntype] = function(data)
-		local status, err = pcall(function()
-			onExit(data)
-		end)
-		if err then
-			print("error during Arrival callback " .. ntype .. ": " .. err .. "\n")
-		end
-	end
-    end 
-    if onSpam then 
-    Arrival.CallSpam[ntype] = function(data)
-		local status, err = pcall(function()
-			onSpam(data)
-		end)
-		if err then
-			print("error during Arrival callback " .. ntype .. ": " .. err .. "\n")
-		end
-	end
-    end 
-end 
-GetPlayerCoords = function ()
-    if Arrival.PlayerCoords then return Arrival.PlayerCoords 
-    else 
-        Arrival.PlayerCoords  = GetEntityCoords(PlayerPedId())
-        return Arrival.PlayerCoords  
-    end 
-end 
-Arrival.FindPlayerNearItems  = function()
-    local objs = {}
-    for i=1,#Arrival.CurrentNearZones do 
-        local nearZone = Arrival.CurrentNearZones[i] and Arrival.ZoneItems[Arrival.CurrentNearZones[i]]  or {}
-        if Arrival.CurrentNearZones[i] and #nearZone>0 then 
-            for i=1 , #nearZone do 
-                if GetPlayerCoords() then 
-                    local objCoords = vector3(nearZone[i].x,nearZone[i].y,nearZone[i].z)
-                end 
-                table.insert(objs,nearZone[i])
-            end 
-        end 
-    end 
-    return objs
-end
-Arrival.FindPlayerNearItemsByNType  = function(ntype)
-        local _objs = Arrival.FindPlayerNearItems()
+Arrival.PlayerNearItems = nil
+
+
+Arrival.Temp_Usage = false
+
+Arrival.AddGroupData = function(nGroup,ndata)
+    Threads.CreateLoopOnce('vars',1000,function()
+        Arrival.PlayerPed = PlayerPedId()
+        Arrival.PlayerCoords = GetEntityCoords(Arrival.PlayerPed)
+        local nearZones = Arrival.GetNearZonesFromCoords(Arrival.PlayerCoords)
+        Arrival.PlayerNearZones = nearZones                                
+        Arrival.Ready = true
         local objs = {}
-        for i,v in pairs(_objs) do
-            if v.ntype == ntype then 
-                table.insert(objs,v)
+        for i=1,#Arrival.PlayerNearZones do 
+            local nearZoneitems = Arrival.PlayerNearZones[i] and  Arrival.ZoneItems[Arrival.PlayerNearZones[i]]  or {}
+            if Arrival.PlayerNearZones[i] and #nearZoneitems >0 then 
+                for i=1 , #nearZoneitems do 
+                    local pos = vector3(nearZoneitems[i].nData.x,nearZoneitems[i].nData.y,nearZoneitems[i].nData.z)
+                    local distance = #(pos - Arrival.PlayerCoords)
+                    nearZoneitems[i].distance = distance
+                    table.insert(objs,nearZoneitems[i])
+                end 
             end 
         end 
-    return objs
-end 
-Arrival.FindPlayerClosestItem = function(ntype)
-    if Arrival.Ready then 
-        local coords = Arrival.PlayerCoords
-        local closestDistance = -1
-        local closestObject   = {}
-        local objs = Arrival.FindPlayerNearItemsByNType(ntype)
-        for i=1, #objs do
-            local data = objs[i]
-            local objectCoords = vector3(data.x,data.y,data.z)
-            local distance     = #(objectCoords - coords)
-            
-            
-            if closestDistance == -1 or closestDistance > distance then
-                closestObject   = objs[i]
-                closestDistance = distance
-                
-            end
-    
-        end
-	return closestObject,closestDistance
-    end 
-end
-Arrival.formatData = function(ntype, data)
-    if not data.x or not data.y or not data.z then 
-        print("data should have x,y,z infomations")
-    end 
-    local x,y,z = data.x,data.y,data.z
-    data.ntype = ntype
-    local cb = data.cb
-    data.ncb = cb
-    local _hash1 = GetNameOfZone(x,y,z)
-    local zone = _hash1
-    data.zone = zone
-    --case : zone (Distance: 0~10)
-    if Arrival.ZoneItems[zone] == nil then 
-        Arrival.ZoneItems[zone] = {}
-    end
-    table.insert(Arrival.ZoneItems[zone],data)
-end 
-Arrival.Add = function( ntype, data )
-    if not data then return print("Error on Arrival resource: no any data")  end 
-	return Arrival.formatData(ntype,data)
-end
-Arrival.GetZoneItems = function(zone)
-    return Arrival.ZoneItems[zone] 
-end 
-Arrival.GetItemsByDistanceByNType = function(ntype,distance)
-    local tbl = {}
-    local tbl2 = Arrival.FindPlayerNearItemsByNType(ntype)
-    
-    for i=1,#tbl2 do 
-        local objectCoords = vector3(tbl2[i].x,tbl2[i].y,tbl2[i].z)
-        local _distance     = #(objectCoords - Arrival.PlayerCoords)
-        if _distance <= distance then 
-            table.insert(tbl,tbl2[i])
+        Arrival.PlayerNearItems = objs
+        if Arrival.Temp_Usage then 
+            Threads.CreateLoopCustomOnce(function()
+                local closingDistances = {}
+                local stackedItems = {}
+                for i=1,#Arrival.PlayerNearItems do 
+                    local item = Arrival.PlayerNearItems[i]
+                    local usage = Arrival.Usages[item.nGroup]
+                    table.insert(closingDistances,item.distance)
+                    if usage and item.distance <= usage.cbrange then 
+                        if not stackedItems[item.nGroup] then stackedItems[item.nGroup] = {} end 
+                        table.insert(stackedItems[item.nGroup],item.nData)
+                        
+                        if not item.enter then 
+                            item.enter = true 
+                            item.exit = false
+                            usage.onEnter(stackedItems[item.nGroup])
+                            if usage.onSpam then 
+                                CreateThread(function()
+                                    repeat
+                                        usage.onSpam(stackedItems[item.nGroup])
+                                        Wait(0)
+                                    until item.distance > usage.cbrange
+                                end)
+                            end 
+                        end 
+                        --print(item.distance,item.nGroup,vector3(item.nData.x,item.nData.y,item.nData.z),item.nZone)
+                    else 
+                        if item.enter then 
+                            item.enter = false 
+                            item.exit = true
+                            usage.onExit(stackedItems[item.nGroup])
+                        end 
+                    end 
+                end 
+                if #closingDistances > 0 then 
+                    local k = 33 + math.min(table.unpack(closingDistances))*10
+                    local waittime = k > 350 and 350 or k
+                    Wait(waittime)
+                    
+                end 
+            end)
         end 
-    end 
-    return tbl
+        
+    end)
+    if not (ndata.x and ndata.y and ndata.z) then 
+        print('data empty positions')
+    end    
+    ndata.arrivalID = Arrival.ItemID
+    
+    ndata.nGroup = nGroup
+    local x,y,z = ndata.x , ndata.y , ndata.z
+    local zone = Arrival.GetZonesFromCoords(x,y,z)
+    ndata.nZone = zone
+    if not Arrival.ZoneItems[zone] then Arrival.ZoneItems[zone] = {} end 
+    table.insert(Arrival.ZoneItems[zone],{nGroup = nGroup, nZone = zone, nData = ndata})
+    table.insert(Arrival.Items,{nGroup = nGroup, nZone = zone, nData = ndata})
+    --print(Arrival.ItemID,x,y,z,zone)
+    Arrival.ItemID = Arrival.ItemID + 1
+    
 end 
-Arrival.RegisterTargets = function(ntype, datatable)
-        if datatable.itemlist and type(datatable.itemlist) == 'table' then 
-            for i,v in pairs(datatable.itemlist) do 
-                Arrival.Add(ntype,v)
+
+Arrival.RegisterGroupUsage = function(nGroup,usagedata)
+    
+    Arrival.Temp_Usage = true
+    if not Arrival.Usages[nGroup] then Arrival.Usages[nGroup] = {} end 
+    Arrival.Usages[nGroup].cbrange = usagedata.range or 1.0    
+    Arrival.Usages[nGroup].onEnter = usagedata.onEnter   
+    Arrival.Usages[nGroup].onExit = usagedata.onExit   
+    Arrival.Usages[nGroup].onSpam = usagedata.onSpam  
+end 
+
+Arrival.RegisterTargets = function(nGroup, usagedatas)
+        if usagedatas.itemlist and type(usagedatas.itemlist) == 'table' then 
+            for i,v in pairs(usagedatas.itemlist) do 
+                Arrival.AddGroupData(nGroup,v)
             end 
         else 
             print('itemlist not defined or empty')
         end 
-        local status, err = pcall(function()
-            if datatable.onEnter or datatable.onExit or datatable.onSpam then 
-                local distance = datatable.range or 1.0
-                local EnterCallback = datatable.onEnter  
-                local ExitCallback = datatable.onExit 
-                local SpamCallback = datatable.onSpam   
-                Arrival.RegisterCallback(ntype,EnterCallback,ExitCallback,SpamCallback,distance)
-            end 
-        end)
-        if err then
-            Citizen.Trace("error during Arrival.RegisterTargets " .. ntype .. ": \n" .. err .. "\n")
-        end
+        Arrival.RegisterGroupUsage(nGroup, usagedatas)
 end
-function GetNearZonesFromCoords(...) -- ugly scripting by negbook
+
+Arrival.GetZonesFromCoords = GetNameOfZone
+Arrival.GetNearZonesFromCoords = function(...) -- ugly scripting by negbook
     local x,y,z 
     if #{...} == 3 then 
         x,y,z = ...
@@ -250,9 +133,6 @@ function GetNearZonesFromCoords(...) -- ugly scripting by negbook
         pos = GetObjectOffsetFromCoords(pos.x,pos.y,pos.z,0.0, 0.0, temp_y ,0.0)
         temp_y = temp_y + 8.0
         NearZones[1] = GetNameOfZone(pos.x,pos.y,pos.z)
-        --NearZones[1] = {}
-        --NearZones[1].zone = GetNameOfZone(pos.x,pos.y,pos.z)
-        --NearZones[1].pos = pos
     end 
     local pos = GetObjectOffsetFromCoords(x,y,z,0.0, 0.0, 0.0 ,0.0)
     local temp_x = 0.0
@@ -260,9 +140,6 @@ function GetNearZonesFromCoords(...) -- ugly scripting by negbook
         pos = GetObjectOffsetFromCoords(pos.x,pos.y,pos.z,0.0, temp_x, 0.0 ,0.0)
         temp_x = temp_x + 8.0
         NearZones[2] = GetNameOfZone(pos.x,pos.y,pos.z)
-        --NearZones[2] = {}
-        --NearZones[2].zone = GetNameOfZone(pos.x,pos.y,pos.z)
-        --NearZones[2].pos = pos
     end 
     local pos = GetObjectOffsetFromCoords(x,y,z,0.0, 0.0, 0.0 ,0.0)
     local temp_y = 0.0
@@ -270,9 +147,6 @@ function GetNearZonesFromCoords(...) -- ugly scripting by negbook
         pos = GetObjectOffsetFromCoords(pos.x,pos.y,pos.z,0.0, 0.0, temp_y ,0.0)
         temp_y = temp_y - 8.0
         NearZones[3] = GetNameOfZone(pos.x,pos.y,pos.z)
-        --NearZones[3] = {}
-        --NearZones[3].zone = GetNameOfZone(pos.x,pos.y,pos.z)
-        --NearZones[3].pos = pos
     end 
     local pos = GetObjectOffsetFromCoords(x,y,z,0.0, 0.0, 0.0 ,0.0)
     local temp_x = 0.0
@@ -280,13 +154,13 @@ function GetNearZonesFromCoords(...) -- ugly scripting by negbook
         pos = GetObjectOffsetFromCoords(pos.x,pos.y,pos.z,0.0, temp_x, 0.0 ,0.0)
         temp_x = temp_x - 8.0
         NearZones[4] = GetNameOfZone(pos.x,pos.y,pos.z)
-        --NearZones[4] = {}
-        --NearZones[4].zone = GetNameOfZone(pos.x,pos.y,pos.z)
-        --NearZones[4].pos = pos
     end 
     NearZones[5] = zone
     return NearZones
 end 
+
+
+
 --debug 
 --[======[
 if debuglog then 

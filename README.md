@@ -22,9 +22,10 @@ client_script '@arrival/arrival.lua'
 Arrival.RegisterTargets (ntype, datatable)    --define target-items group  , datatable:{ItemList,enter exit cb etc....}
 
 --Advanced functiona
-Arrival.Add ( ntype, data ) -- add item , defined cbs with RegisterCallback
-Arrival.RegisterCallback (ntype, onEnter,onExit ,onSpam, callbackdistance)
-Arrival.GetZoneItems (zone) -- idk
+Arrival.AddGroupData = function(nGroup,ndata) -- add item , defined cbs with RegisterGroupUsage or RegisterTargets
+Arrival.RegisterGroupUsage = function(nGroup,usagedata)
+Arrival.RegisterTargets = function(nGroup, usagedatas)
+
 ```
 
 [EXAMPLE]
@@ -146,34 +147,51 @@ end
 Arrival.RegisterTargets ('new_banking_banks',{ 
     itemlist = banks,
     onEnter = 
-                        function(data)
-                            local distance = data.distance
-                            print('NEW '..data.ntype.."is arrived ,pos:"..data.x ..' '.. data.y ..' '.. data.z)
+                        function(nData)
+                            for i , data in pairs (nData) do 
+                                local distance = data.distance
+                                print('NEW '..data.nGroup.."is arrived ,pos:"..data.x ..' '.. data.y ..' '.. data.z)
+                            end 
                         end
-    ,
-    range = 2.5
 
 })
 Arrival.RegisterTargets ('new_banking_atms',{ 
     itemlist = atms,
     onEnter = 
-                        function(data)
+                        function(nData)
+                            for i , data in pairs (nData) do 
                             local distance = data.distance
-                            print('NEW '..data.ntype.."is arrived ,pos:"..data.x ..' '.. data.y ..' '.. data.z)
+                            print('NEW '..data.nGroup.."is arrived ,pos:"..data.x ..' '.. data.y ..' '.. data.z)
+                            end 
                         end
     ,
     onExit = 
-                        function(data)
+                        function(nData)
+                            for i , data in pairs (nData) do 
                             local distance = data.distance
-                            print('NEW '..data.ntype.."is exited ,pos:"..data.x ..' '.. data.y ..' '.. data.z)
+                            print('NEW '..data.nGroup.."is exited ,pos:"..data.x ..' '.. data.y ..' '.. data.z)
+                            end 
                         end
     ,
     onSpam =            function()
-                            DisplayHelpText("Press ~INPUT_PICKUP~ to Open ATM")
+DisplayHelpText("Appuie sur ~INPUT_PICKUP~ pour accèder à tes comptes ~b~")
+                            if IsControlJustPressed(1, 38) then
+			inMenu = true
+			SetNuiFocus(true, true)
+			SendNUIMessage({type = 'openGeneral'})
+			TriggerServerEvent('bank:balance')
+			local ped = GetPlayerPed(-1)
+		end
+        if IsControlJustPressed(1, 322) then
+		inMenu = false
+			SetNuiFocus(false, false)
+			SendNUIMessage({type = 'close'})
+		end
                         end
     
 
 })
+
 
 end)
 ```
