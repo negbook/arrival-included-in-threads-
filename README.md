@@ -19,12 +19,10 @@ client_script '@arrival/arrival.lua'
 
 [FUNCTIONS]
 ```
-Arrival.RegisterTargets (ntype, datatable)    --define target-items group  , datatable:{ItemList,enter exit cb etc....}
 
---Advanced functiona
 Arrival.AddGroupData = function(nGroup,ndata) -- add item , defined cbs with RegisterGroupUsage or RegisterTargets
-Arrival.RegisterGroupUsage = function(nGroup,usagedata)
-Arrival.RegisterTargets = function(nGroup, usagedatas)
+Arrival.RegisterGroupUsage = function(nGroup,usagedata)   --define target-item group  , datatable:{enter exit cb etc....}
+Arrival.RegisterTargets = function(nGroup, usagedatas)  --define target-items group  , datatable:{ItemList,enter exit cb etc....}
 
 ```
 
