@@ -146,7 +146,8 @@ Arrival.RegisterTargets ('new_banking_banks',{
     itemlist = banks,
     onEnter = 
                         function(nData)
-                            for i , data in pairs (nData) do 
+                            for i=1 , #(nData) do 
+                                local data = nData[i]
                                 local distance = data.distance
                                 print('NEW '..data.nGroup.."is arrived ,pos:"..data.x ..' '.. data.y ..' '.. data.z)
                             end 
@@ -157,7 +158,8 @@ Arrival.RegisterTargets ('new_banking_atms',{
     itemlist = atms,
     onEnter = 
                         function(nData)
-                            for i , data in pairs (nData) do 
+                            for i=1 , #(nData) do 
+                                local data = nData[i]
                             local distance = data.distance
                             print('NEW '..data.nGroup.."is arrived ,pos:"..data.x ..' '.. data.y ..' '.. data.z)
                             end 
@@ -165,7 +167,8 @@ Arrival.RegisterTargets ('new_banking_atms',{
     ,
     onExit = 
                         function(nData)
-                            for i , data in pairs (nData) do 
+                            for i=1 , #(nData) do 
+                                local data = nData[i]
                             local distance = data.distance
                             print('NEW '..data.nGroup.."is exited ,pos:"..data.x ..' '.. data.y ..' '.. data.z)
                             end 
