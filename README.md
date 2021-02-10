@@ -146,10 +146,12 @@ Arrival.RegisterTargets ('new_banking_banks',{
     itemlist = banks,
     onEnter = 
                         function(nData)
+                            if nData then 
                             for i=1 , #(nData) do 
                                 local data = nData[i]
                                 local distance = data.distance
                                 print('NEW '..data.nGroup.."is arrived ,pos:"..data.x ..' '.. data.y ..' '.. data.z)
+                            end 
                             end 
                         end
 
@@ -158,19 +160,23 @@ Arrival.RegisterTargets ('new_banking_atms',{
     itemlist = atms,
     onEnter = 
                         function(nData)
+                            if nData then 
                             for i=1 , #(nData) do 
                                 local data = nData[i]
                             local distance = data.distance
                             print('NEW '..data.nGroup.."is arrived ,pos:"..data.x ..' '.. data.y ..' '.. data.z)
                             end 
+                            end 
                         end
     ,
     onExit = 
                         function(nData)
-                            for i=1 , #(nData) do 
-                                local data = nData[i]
-                            local distance = data.distance
-                            print('NEW '..data.nGroup.."is exited ,pos:"..data.x ..' '.. data.y ..' '.. data.z)
+                            if nData then 
+                                for i=1 , #(nData) do 
+                                    local data = nData[i]
+                                local distance = data.distance
+                                print('NEW '..data.nGroup.."is exited ,pos:"..data.x ..' '.. data.y ..' '.. data.z)
+                                end 
                             end 
                         end
     ,
@@ -192,6 +198,7 @@ DisplayHelpText("Appuie sur ~INPUT_PICKUP~ pour accèder à tes comptes ~b~")
     
 
 })
+
 
 
 end)
