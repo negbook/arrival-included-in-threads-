@@ -2,8 +2,11 @@ fx_version 'adamant'
 games {'gta5'}
 
 description 'Arrival'
-client_script '@threads/threads.lua'
-client_script 'arrival.lua'
+client_scripts {
+'@threads/threads.lua',
+'arrival.lua'
+}
+
 dependencies {
 	'threads'
 }
