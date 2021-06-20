@@ -36,7 +36,7 @@ Arrival.AddGroupData = function(nGroup,ndata)
         end 
         Arrival.PlayerNearItems = objs
         if Arrival.Temp_Usage then 
-            Threads.CreateLoopCustomOnce(function()
+            Threads.CreateLoopOnceCustom("arrival",0,function(delay)
                 local closingDistances = {}
                 local stackedItems = {}
                 for i=1,#Arrival.PlayerNearItems do 
@@ -50,14 +50,18 @@ Arrival.AddGroupData = function(nGroup,ndata)
                         if not item.enter then 
                             item.enter = true 
                             item.exit = false
-                            usage.onEnter(stackedItems[item.nGroup])
+                            if usage.onEnter then usage.onEnter(stackedItems[item.nGroup]) end 
                             if usage.onSpam then 
-                                CreateThread(function()
-                                    repeat
+                                
+                                Threads.CreateLoopOnce("arrivalSpam",0,function()
                                         usage.onSpam(stackedItems[item.nGroup])
-                                        Wait(0)
-                                    until item.distance > usage.cbrange
+                                    if item.distance > usage.cbrange then 
+                                        Threads.KillActionOfLoop("arrivalSpam")
+                                    end 
                                 end)
+                                
+                                
+                                
                             end 
                         end 
                         --print(item.distance,item.nGroup,vector3(item.nData.x,item.nData.y,item.nData.z),item.nZone)
@@ -65,14 +69,14 @@ Arrival.AddGroupData = function(nGroup,ndata)
                         if item.enter then 
                             item.enter = false 
                             item.exit = true
-                            usage.onExit(stackedItems[item.nGroup])
+                            if usage.onExit then usage.onExit(stackedItems and stackedItems[item.nGroup] and stackedItems[item.nGroup]) end 
                         end 
                     end 
                 end 
                 if #closingDistances > 0 then 
                     local k = 33 + math.min(table.unpack(closingDistances))*10
                     local waittime = k > 350 and 350 or k
-                    Wait(waittime)
+                    delay.setter(waittime)
                     
                 end 
             end)
