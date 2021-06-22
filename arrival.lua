@@ -64,14 +64,16 @@ FlowDetector.Register("currentfocusdata",'change',function(name,old,new,isLinked
         end,"freshfocus")
         Threads.SetLoopCustom("freshcurrentzone",0)
         Threads.SetLoopCustom("freshfocus",0)
-        
+    else 
+        Threads.KillLoopCustom('currentfocusdata',0)
     end 
     
 end )
 FlowDetector.Register("inzone",'change',function(name,old,new,isLinked)
     if new == false then 
         Arrival.currentzonedata = {}
-        Threads.KillLoopCustom('checkcurrentzonedatadistance',1000)
+        Threads.KillLoopCustom('checkcurrentzonedatadistance',0)
+        Threads.KillLoopCustom('currentfocusdata',0)
         Arrival.currentfocusdata = FlowDetector.Check('currentfocusdata',{})
     else 
         Arrival.currentzonedata = Arrival.zonedata_full[new]
