@@ -28,7 +28,12 @@ FlowDetector.Register("currentarrivaldata_exit",'change',function(name,old,new,i
 end )
 FlowDetector.Link('coords','currentfocusdata')
 FlowDetector.Register("currentfocusdata",'change',function(name,old,new,isLinked)
-    
+    if #new == 0 then 
+        if #Arrival.currentarrivaldata_enter>0 then 
+        Arrival.currentarrivaldata_exit = FlowDetector.Check('currentarrivaldata_exit',Arrival.currentarrivaldata_enter)
+        end 
+        Threads.KillLoopCustom('currentfocusdata',0)
+    end 
     if Arrival.currentfocusdata and #Arrival.currentfocusdata > 0 then 
         Threads.CreateLoopOnceCustom('currentfocusdata',0,function(delay)
             local k = 1000
@@ -62,16 +67,24 @@ FlowDetector.Register("currentfocusdata",'change',function(name,old,new,isLinked
             local waittime = k > 1000 and 1000 or k
             delay.setter(waittime)
         end,"freshfocus")
-        Threads.SetLoopCustom("freshcurrentzone",0)
+        --Threads.SetLoopCustom("freshcurrentzone",0)
         Threads.SetLoopCustom("freshfocus",0)
     else 
+        if #Arrival.currentarrivaldata_enter>0 then 
+        Arrival.currentarrivaldata_exit = FlowDetector.Check('currentarrivaldata_exit',Arrival.currentarrivaldata_enter)
+        end 
         Threads.KillLoopCustom('currentfocusdata',0)
+        
     end 
     
 end )
 FlowDetector.Register("inzone",'change',function(name,old,new,isLinked)
+    
     if new == false then 
         Arrival.currentzonedata = {}
+        if #Arrival.currentarrivaldata_enter>0 then 
+        Arrival.currentarrivaldata_exit = FlowDetector.Check('currentarrivaldata_exit',Arrival.currentarrivaldata_enter)
+        end 
         Threads.KillLoopCustom('checkcurrentzonedatadistance',0)
         Threads.KillLoopCustom('currentfocusdata',0)
         Arrival.currentfocusdata = FlowDetector.Check('currentfocusdata',{})
@@ -96,8 +109,8 @@ FlowDetector.Register("inzone",'change',function(name,old,new,isLinked)
             end 
             
             Arrival.currentfocusdata = FlowDetector.Check('currentfocusdata',arrivalfocusdata)
-            local k = 660 + math.min(table.unpack(cal))*80
-            local waittime = k > 5000 and 5000 or k
+            local k = (332 + math.min(table.unpack(cal))*20) * 4
+            local waittime = k > 4000 and 4000 or k
             
             delay.setter(waittime)
         end,"freshcurrentzone")
@@ -126,7 +139,8 @@ Arrival.Register = function (datas,rangeorcb,_cb)
     local fntotable = function(fn) return setmetatable({},{__index=function(t,k) return 'isme' end ,__call=function(t,...) return fn(...) end })  end 
     local cooked_cb = function(sdata,action)
         local name = tostring(sdata)
-        local result = {data=sdata,data_source=datas[sdata.index],killer=setmetatable({},{__call = function(t,data) if Threads.IsActionOfLoopAlive(name) then Threads.KillActionOfLoop(name) end  end}),spamer=setmetatable({},{__call = function(t,data) Threads.CreateLoopOnce(name,0,data) end}),action=action}
+        local result = {data=sdata,data_source=datas[sdata.index],killer=setmetatable({},{__call = function(t,data) if Threads.IsActionOfLoopAlive(name) then Threads.KillActionOfLoop(name) end  end}),spamer=setmetatable({},{__call = function(t,data) Threads.CreateLoop(name,0,data) end}),action=action}
+        result.spamkiller = result.killer
         return _cb(result) 
     end 
     local range,cb = 1.0,cooked_cb
