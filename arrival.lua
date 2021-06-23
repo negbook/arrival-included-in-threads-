@@ -108,7 +108,6 @@ end )
 FlowDetector.Register("zones",'change',function(name,old,new,isLinked)
     local zone = GetNameOfZone(Arrival.pedcoords)
     Arrival.inzone =  FlowDetector.Check('inzone',Arrival.zonedata_full[zone] and zone or false)
-    Arrival.currentzonedata = Arrival.zonedata_full[zone]
         --print(isLinked,name,old,new,json.encode(new))
 end )
 FlowDetector.Register("coords",'change',function(name,old,new,isLinked)
