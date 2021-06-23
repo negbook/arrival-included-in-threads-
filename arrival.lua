@@ -126,7 +126,7 @@ Arrival.Register = function (datas,rangeorcb,_cb)
     local fntotable = function(fn) return setmetatable({},{__index=function(t,k) return 'isme' end ,__call=function(t,...) return fn(...) end })  end 
     local cooked_cb = function(sdata,action)
         local name = tostring(sdata)
-        local result = {data=sdata,data_source=datas[sdata.index],killer=setmetatable({},{__call = function(t,data) if Threads.IsLoopAlive(name) then Threads.KillActionOfLoop(name) end  end}),spamer=setmetatable({},{__call = function(t,data) Threads.CreateLoopOnce(name,0,data) end}),action=action}
+        local result = {data=sdata,data_source=datas[sdata.index],killer=setmetatable({},{__call = function(t,data) if Threads.IsActionOfLoopAlive(name) then Threads.KillActionOfLoop(name) end  end}),spamer=setmetatable({},{__call = function(t,data) Threads.CreateLoopOnce(name,0,data) end}),action=action}
         return _cb(result) 
     end 
     local range,cb = 1.0,cooked_cb
