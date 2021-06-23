@@ -108,6 +108,7 @@ end )
 FlowDetector.Register("zones",'change',function(name,old,new,isLinked)
     local zone = GetNameOfZone(Arrival.pedcoords)
     Arrival.inzone =  FlowDetector.Check('inzone',Arrival.zonedata_full[zone] and zone or false)
+    Arrival.currentzonedata = Arrival.zonedata_full[zone]
         --print(isLinked,name,old,new,json.encode(new))
 end )
 FlowDetector.Register("coords",'change',function(name,old,new,isLinked)
@@ -144,11 +145,7 @@ Arrival.Register = function (datas,rangeorcb,_cb)
         if not Arrival.zonedata_full[zone] then Arrival.zonedata_full[zone]={} end 
         table.insert(Arrival.zonedata_full[zone],v)
     end 
-    Threads.CreateThreadOnce(function()
-        local zone = GetNameOfZone(Arrival.pedcoords)
-        Arrival.inzone =  FlowDetector.Check('inzone',Arrival.zonedata_full[zone] and zone or false)
-        Arrival.currentzonedata = Arrival.zonedata_full[zone]
-    end)
+
     
 end 
 CreateThread(function()
@@ -156,7 +153,7 @@ CreateThread(function()
     Arrival.ped = PlayerPedId()
     Arrival.pedcoords = FlowDetector.Check('coords',GetEntityCoords(Arrival.ped)) 
     Arrival.nearzones =  FlowDetector.Check('zones',Arrival.getnearzones())
-    
+
     Threads.CreateLoopCustom('inits',500,function(delay)
         Arrival.ped = PlayerPedId()
         Arrival.pedcoords = FlowDetector.Check("coords", GetEntityCoords(Arrival.ped))
