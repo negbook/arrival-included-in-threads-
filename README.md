@@ -14,7 +14,10 @@ make sure fx_version up to 'adamant' version
 
 (optional)
 ``` 
-client_script '@arrival/arrival.lua'
+client_scripts {
+'@threads/threads.lua',
+'@arrival/arrival.lua',
+...
 ```
 
 (must)
