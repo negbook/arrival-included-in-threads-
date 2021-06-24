@@ -11,8 +11,11 @@ Arrival utilities for FXServer
 
 Set it as a dependency in you fxmanifest.lua
 make sure fx_version up to 'adamant' version
-
+``` (optional)
+client_script '@arrival/arrival.lua'
 ```
+
+``` (must)
 dependencies {
     'threads',
     'arrival'
@@ -21,8 +24,8 @@ dependencies {
 
 [FUNCTION EXPORTS/EVENT]
 ```
+Arrival.Register(positions,range,cb(result)) --result.data result.data_source result.action 
 exports.arrival:Register(positions,range,cb(result)) --result.data result.data_source result.action 
-
 TriggerEvent('Arrival:AddPositions',positions,range,cb(result) --result.data result.data_source result.action 
 
 ```
