@@ -6,7 +6,7 @@ Arrival.currentzonedata = {}
 Arrival.ped = nil
 Arrival.pedcoords = vector3(0.0,0.0,0.0)
 Arrival.pedzone = FlowDetector.Create('zone','')
-Arrival.debuglog = true
+Arrival.debuglog = false
 
 
 Arrival.Register = function (datas,rangeorcb,_cb)
