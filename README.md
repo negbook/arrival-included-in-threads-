@@ -34,7 +34,7 @@ Arrival.Register(positions,range,cb(result)) --result.data result.data_source re
 exports.arrival:Register(positions,range,cb(result)) --result.data result.data_source result.action (with dependencies)
 TriggerEvent('Arrival:AddPositions',positions,range,cb(result) --result.data result.data_source result.action (with dependencies)
 
-result.action ==> 'enter','exit'
+result.action ==> 'enter' / 'exit'
 
 ```
 
