@@ -13,17 +13,17 @@ Set it as a dependency in you fxmanifest.lua
 make sure fx_version up to 'adamant' version
 
 ```
-client_scripts {
-'@threads/threads.lua',
-'@flowdetector/flowdetector.lua',
-'@arrival/arrival.lua'
+dependencies {
+	'threads',
+    'arrival'
 }
 ```
 
-[FUNCTIONS]
+[FUNCTION EXPORTS/EVENT]
 ```
+exports.arrival:Register(positions,range,cb(result)) --result.data result.data_source result.action 
 
----Arrival.Register
+TriggerEvent('Arrival:AddPositions',positions,range,cb(result) --result.data result.data_source result.action 
 
 ```
 
