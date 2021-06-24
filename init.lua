@@ -5,7 +5,7 @@ Arrival.currentzonedata = {}
 
 Arrival.ped = nil
 Arrival.pedcoords = vector3(0.0,0.0,0.0)
-Arrival.pedzone = FlowDetector.Create('zone','')
+Arrival.pedzone = ''
 Arrival.debuglog = true
 RegisterNetEvent('Arrival:RegisterInit')
 AddEventHandler('Arrival:RegisterInit', function(datas,rangeorcb,_cb) 
@@ -43,38 +43,37 @@ Arrival.Register = function (datas,rangeorcb,_cb)
         Threads.CreateLoopOnce('inits',528,function(delay)
             Arrival.ped = PlayerPedId()
             Arrival.pedcoords = GetEntityCoords(Arrival.ped)
-            Threads.CreateThreadOnce(function()
-                FlowDetector.Register("zone",'change',function(name,old,new,isLinked)
-                    if old and #old>0 then 
-                        local zonedatas = Arrival.zonedata_full[old]
-                        if zonedatas and #zonedatas>0 then 
-                            for i=1,#zonedatas do 
-                                local v = zonedatas[i]
-                                local pos = vector3(v.x,v.y,v.z)
-                                local distance = #(pos-Arrival.pedcoords)
-                                if distance < v.range then
-                                    if not v.enter then 
-                                        v.enter = true 
-                                        if v.arrival then v.arrival(v,'enter') end 
-                                    end 
-                                    if v.exit~=nil and v.exit == true then 
-                                        v.exit = false 
-                                    end 
-                                    
-                                else 
-                                    if v.enter~=nil and v.enter == true then 
-                                        v.enter = false 
-                                        v.exit = true
-                                        if v.arrival then v.arrival(v,'exit') end 
-                                    end 
-                                    
+            if Arrival.pedzone ~= Arrival.GetHashMethod(Arrival.pedcoords.x,Arrival.pedcoords.y,Arrival.pedcoords.z,range) then 
+                local old = Arrival.pedzone
+                if old and #old>0 then 
+                    local zonedatas = Arrival.zonedata_full[old]
+                    if zonedatas and #zonedatas>0 then 
+                        for i=1,#zonedatas do 
+                            local v = zonedatas[i]
+                            local pos = vector3(v.x,v.y,v.z)
+                            local distance = #(pos-Arrival.pedcoords)
+                            if distance < v.range then
+                                if not v.enter then 
+                                    v.enter = true 
+                                    if v.arrival then v.arrival(v,'enter') end 
                                 end 
+                                if v.exit~=nil and v.exit == true then 
+                                    v.exit = false 
+                                end 
+                                
+                            else 
+                                if v.enter~=nil and v.enter == true then 
+                                    v.enter = false 
+                                    v.exit = true
+                                    if v.arrival then v.arrival(v,'exit') end 
+                                end 
+                                
                             end 
                         end 
                     end 
-                end )
-            end)
-            Arrival.pedzone = FlowDetector.Check('zone',Arrival.GetHashMethod(Arrival.pedcoords.x,Arrival.pedcoords.y,Arrival.pedcoords.z,range)) 
+                end 
+            end 
+            Arrival.pedzone = Arrival.GetHashMethod(Arrival.pedcoords.x,Arrival.pedcoords.y,Arrival.pedcoords.z,range)
             local zonedatas = Arrival.zonedata_full[Arrival.pedzone]
             if zonedatas and #zonedatas>0 then 
                 for i=1,#zonedatas do 
