@@ -7,19 +7,15 @@ Arrival.ped = nil
 Arrival.pedcoords = vector3(0.0,0.0,0.0)
 Arrival.pedzone = ''
 Arrival.debuglog = true
-RegisterNetEvent('Arrival:RegisterInit')
-AddEventHandler('Arrival:RegisterInit', function(datas,rangeorcb,_cb) 
-    print('here')
-    Arrival.Register(datas,rangeorcb,_cb)
-end)
+
 
 Arrival.Register = function (datas,rangeorcb,_cb)
     local fntotable = function(fn) return setmetatable({},{__index=function(t,k) return 'isme' end ,__call=function(t,...) return fn(...) end })  end 
     local cooked_cb = function(sdata,action)
         local name = tostring(sdata)
-        --local result = {data=sdata,data_source=datas[sdata.index],killer=setmetatable({},{__call = function(t,data) if Threads.IsActionOfLoopAlive(name) then Threads.KillActionOfLoop(name) end  end}),spamer={},action=action}
+        --local result = {data=datas[sdata.index],data_arrival=sdata,killer=setmetatable({},{__call = function(t,data) if Threads.IsActionOfLoopAlive(name) then Threads.KillActionOfLoop(name) end  end}),spamer={},action=action}
         --result.spamkiller = result.killer
-        local result = {data=sdata,data_source=datas[sdata.index],action=action}
+        local result = {data=datas[sdata.index],data_arrival=sdata,action=action}
         
         return _cb(result) 
     end 
