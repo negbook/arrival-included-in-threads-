@@ -14,7 +14,7 @@ make sure fx_version up to 'adamant' version
 
 ```
 dependencies {
-	'threads',
+    'threads',
     'arrival'
 }
 ```
