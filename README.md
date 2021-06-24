@@ -30,9 +30,9 @@ dependencies {
 
 [FUNCTION EXPORTS/EVENT]
 ```
-Arrival.Register(positions,range,cb(result)) --result.data result.action (with optional) result.data_arrival 
-exports.arrival:Register(positions,range,cb(result)) --result.data result.action (with dependencies) result.data_arrival 
-TriggerEvent('Arrival:AddPositions',positions,range,cb(result) --result.data result.action (with dependencies) result.data_arrival 
+Arrival.Register(positions,range,cb(result)) --result.data result.action result.data_arrival  (with optional)
+exports.arrival:Register(positions,range,cb(result)) --result.data result.action result.data_arrival  (with dependencies)
+TriggerEvent('Arrival:AddPositions',positions,range,cb(result) --result.data result.action result.data_arrival  (with dependencies)
 
 result.action ==> 'enter' / 'exit'
 
