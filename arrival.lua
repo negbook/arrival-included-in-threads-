@@ -6,7 +6,7 @@ Arrival.currentzonedata = {}
 Arrival.ped = nil
 Arrival.pedcoords = vector3(0.0,0.0,0.0)
 Arrival.pedzone = FlowDetector.Create('zone','')
-Arrival.debuglog = false
+Arrival.debuglog = true
 
 
 Arrival.Register = function (datas,rangeorcb,_cb)
@@ -34,7 +34,7 @@ Arrival.Register = function (datas,rangeorcb,_cb)
     end 
     
     if  GetCurrentResourceName() ~= resourceName or Arrival.debuglog then
-        Threads.CreateLoopOnce('inits',33,function(delay)
+        Threads.CreateLoopOnce('inits',528,function(delay)
             Arrival.ped = PlayerPedId()
             Arrival.pedcoords = GetEntityCoords(Arrival.ped)
             Threads.CreateThreadOnce(function()
