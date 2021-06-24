@@ -11,11 +11,14 @@ Arrival utilities for FXServer
 
 Set it as a dependency in you fxmanifest.lua
 make sure fx_version up to 'adamant' version
-``` (optional)
+
+(optional)
+``` 
 client_script '@arrival/arrival.lua'
 ```
 
-``` (must)
+(must)
+``` 
 dependencies {
     'threads',
     'arrival'
