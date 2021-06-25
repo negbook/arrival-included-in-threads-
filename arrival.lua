@@ -1,13 +1,18 @@
-local Arrival = {}
 RegisterNetEvent('Arrival:AddPositions')
-AddEventHandler('Arrival:AddPositions', function(datas,rangeorcb,_cb) 
-    
-    Arrival.Register(datas,rangeorcb,_cb)
-end)
+RegisterNetEvent('Arrival:getSharedObject')
+local Arrival = {}
 
 Arrival.Register = function(datas,rangeorcb,_cb)
     exports.arrival:Register(datas,rangeorcb,_cb)
 end 
+
+AddEventHandler('Arrival:AddPositions', function(datas,rangeorcb,_cb) 
+    Arrival.Register(datas,rangeorcb,_cb)
+end)
+
+AddEventHandler('Arrival:getSharedObject', function(cb) 
+    cb(Arrival)
+end)
 --debug 
 --[======[
 if debuglog then 
