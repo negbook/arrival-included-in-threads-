@@ -1,9 +1,9 @@
-# fxserver-arrival(Included into [Threads](https://github.com/negbook/arrival))
-Arrival utilities for FXServer(Included into [Threads](https://github.com/negbook/arrival))
+# fxserver-arrival(Included into [Threads](https://github.com/negbook/threads))
+Arrival utilities for FXServer(Included into [Threads](https://github.com/negbook/threads))
 
 
 [DEPENDENCIES]
-[Threads](https://github.com/negbook/arrival)
+[Threads](https://github.com/negbook/threads)
 
 
 
