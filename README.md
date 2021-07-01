@@ -1,5 +1,5 @@
-# fxserver-arrival
-Arrival utilities for FXServer
+# fxserver-arrival(Included into [Threads](https://forum.cfx.re/t/lib-threads-good-for-loops/2089076))
+Arrival utilities for FXServer(Included into [Threads](https://forum.cfx.re/t/lib-threads-good-for-loops/2089076))
 
 
 [DEPENDENCIES]
