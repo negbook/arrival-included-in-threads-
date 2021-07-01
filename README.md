@@ -1,9 +1,9 @@
-# fxserver-arrival(Included into [Threads](https://forum.cfx.re/t/lib-threads-good-for-loops/2089076))
-Arrival utilities for FXServer(Included into [Threads](https://forum.cfx.re/t/lib-threads-good-for-loops/2089076))
+# fxserver-arrival(Included into [Threads](https://github.com/negbook/arrival))
+Arrival utilities for FXServer(Included into [Threads](https://github.com/negbook/arrival))
 
 
 [DEPENDENCIES]
-[Threads](https://forum.cfx.re/t/lib-threads-good-for-loops/2089076)
+[Threads](https://github.com/negbook/arrival)
 
 
 
